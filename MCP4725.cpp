@@ -62,7 +62,7 @@ void MCP4725::begin(uint8_t _ADR) {
                 after power-down or reset.
 */
 /**************************************************************************/
-void MCP4725::setVoltage( uint16_t output, bool writeEEPROM )
+uint8_t MCP4725::setVoltage( uint16_t output, bool writeEEPROM )
 {
 #ifdef TWBR  //REMOVE??
   uint8_t twbrback = TWBR;
@@ -80,10 +80,11 @@ void MCP4725::setVoltage( uint16_t output, bool writeEEPROM )
   Wire.write(Config | REG_CMD_MASK); //Write global config, OR with command bit mask
   Wire.write(output / 16);                   // Upper data bits          (D11.D10.D9.D8.D7.D6.D5.D4)
   Wire.write((output % 16) << 4);            // Lower data bits          (D3.D2.D1.D0.x.x.x.x)
-  Wire.endTransmission();
+  uint8_t Status = Wire.endTransmission();
 #ifdef TWBR
   TWBR = twbrback;
 #endif
+return Status; //Return result of I2C transmission
 }
 
 uint8_t MCP4725::Sleep(bool State, uint8_t Level) 
@@ -96,8 +97,9 @@ uint8_t MCP4725::Sleep(bool State, uint8_t Level)
     Config = Config & 0xF9; //Clear sleep bits, put device into normal mode
   }
 
+  // Serial.println(Config, HEX); //DEBUG!
   Wire.beginTransmission(ADR);
-  Wire.write(Config | REG_CMD_MASK);
+  Wire.write(Config | CONFIG_CMD_MASK);
   return Wire.endTransmission(); //Send sucess result 
 }
 
@@ -107,7 +109,7 @@ uint8_t MCP4725::SetGain(bool State)
   else Config = Config & 0xFE;; //Clear gain bit (1x mode)
 
   Wire.beginTransmission(ADR);
-  Wire.write(Config | REG_CMD_MASK);
+  Wire.write(Config | CONFIG_CMD_MASK);
   return Wire.endTransmission(); //Send sucess result 
 }
 
@@ -117,6 +119,6 @@ uint8_t MCP4725::SetRef(uint8_t State)
   Config = Config | (State << 3); //Set appropriate buffer/vref source values
 
   Wire.beginTransmission(ADR);
-  Wire.write(Config | REG_CMD_MASK);
+  Wire.write(Config | CONFIG_CMD_MASK);
   return Wire.endTransmission(); //Send sucess result 
 }

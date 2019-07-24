@@ -37,9 +37,9 @@
 #define PD_125K 0b10
 #define PD_1K 0b01
 
-#define UNBUFFER_VDD 0b00
+#define UNBUFFERED_VDD 0b00
 #define BUFFERED_VREF 0b11
-#define UNBUFFEREF_VREF 0b10
+#define UNBUFFERED_VREF 0b10
 
 #define GAIN_1X 0
 #define GAIN_2X 1
@@ -51,7 +51,7 @@ class MCP4725{
  public:
   MCP4725();
   void begin(uint8_t _ADR);  
-  void setVoltage( uint16_t output, bool writeEEPROM = false);
+  uint8_t setVoltage( uint16_t output, bool writeEEPROM = false);
   uint8_t Sleep(bool State, uint8_t Level = PD_640K);
   uint8_t SetGain(bool State);
   uint8_t SetRef(uint8_t State);
